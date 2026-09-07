@@ -1,0 +1,1 @@
+BACKEND_URL=https://ai-career-copilot-server.onrender.com
