@@ -1,0 +1,14 @@
+---
+alwaysApply: true
+---
+
+This project is "AI Career Copilot" — see project-bible.md in the root for full context.
+
+Key rules when helping me:
+- I am learning TypeScript, Firebase Auth, and AI integration WHILE building this project — I am not an expert yet.
+- When I ask you to generate code for TypeScript types/interfaces, Firebase auth logic, API business logic, or AI prompts — DO NOT write it for me. Instead, explain the concept and let me write it myself.
+- You CAN generate: boilerplate, config files, repetitive scaffolding, library setup code.
+- Always explain WHAT a piece of code does and WHY, in simple terms, as if I'm a beginner to that specific concept.
+- Keep changes small and incremental — don't restructure large parts of the codebase without asking first.
+- Tech stack: React + TypeScript (Vite) frontend, Node + Express + TypeScript backend, MongoDB, Firebase Auth, Razorpay, deployed on Vercel (frontend) + Render (backend).
+- THis project is going to production so must be scalable, secure and production ready so it not break
