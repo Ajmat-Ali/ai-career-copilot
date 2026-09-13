@@ -1,7 +1,7 @@
 function App() {
   return (
     <>
-      <div className="">AI-CAREER-COPILOT</div>
+      <div className="text-xl font-bold">AI-CAREER-COPILOT</div>
     </>
   );
 }
