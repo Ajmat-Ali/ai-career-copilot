@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 import AuthLayout from "@/components/auth/AuthLayout";
 import GoogleIcon from "@/components/auth/GoogleIcon";
 import { Link } from "react-router-dom";
+import { loginWithGoogle, registerWithEmail } from "@/api/firebaseAuth";
+import { sendIdTokenToBackend } from "@/api/auth.api";
+import { getFirebaseErrorMessage } from "@/lib/firebaseErrors";
+import { toast } from "sonner";
+import { setAccessToken } from "@/api/tokenStore";
 
 const registerSchema = z
   .object({
@@ -32,7 +37,31 @@ export default function RegisterPage() {
   });
 
   const onSubmit = async (data: RegisterFormValues) => {
-    console.log("form data:", data);
+    try {
+      const result = await registerWithEmail(data.email, data.password);
+      const idToken = await result.user.getIdToken();
+      const backendRes = await sendIdTokenToBackend(idToken, data.name);
+      setAccessToken(backendRes.data.accessToken);
+      toast.success("Account created!");
+      // navigate to dashboard next
+    } catch (error) {
+      toast.error(getFirebaseErrorMessage(error));
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    try {
+      const result = await loginWithGoogle();
+      const idToken = await result.user.getIdToken();
+      const backendRes = await sendIdTokenToBackend(
+        idToken,
+        result.user.displayName ?? undefined,
+      );
+      setAccessToken(backendRes.data.accessToken);
+      toast.success("Account created!");
+    } catch (error) {
+      toast.error(getFirebaseErrorMessage(error));
+    }
   };
 
   return (
@@ -46,6 +75,7 @@ export default function RegisterPage() {
         variant="outline"
         type="button"
         className="w-full mb-4 cursor-pointer"
+        onClick={handleGoogleSignup}
       >
         <GoogleIcon />
         Continue with Google

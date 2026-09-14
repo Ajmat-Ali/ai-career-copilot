@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button";
 import AuthLayout from "@/components/auth/AuthLayout";
 import GoogleIcon from "@/components/auth/GoogleIcon";
 import { Link } from "react-router-dom";
+import { loginWithEmail, loginWithGoogle } from "@/api/firebaseAuth";
+import { sendIdTokenToBackend } from "@/api/auth.api";
+import { toast } from "sonner";
+import { getFirebaseErrorMessage } from "@/lib/firebaseErrors";
+import { setAccessToken } from "@/api/tokenStore";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -25,7 +30,31 @@ export default function LoginPage() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
-    console.log("form data:", data);
+    try {
+      const result = await loginWithEmail(data.email, data.password);
+      const idToken = await result.user.getIdToken();
+      const backendRes = await sendIdTokenToBackend(idToken);
+      setAccessToken(backendRes.data.accessToken);
+      toast.success("Welcome back!");
+      // navigate to dashboard next
+    } catch (error) {
+      toast.error(getFirebaseErrorMessage(error));
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await loginWithGoogle();
+      const idToken = await result.user.getIdToken();
+      const backendRes = await sendIdTokenToBackend(
+        idToken,
+        result.user.displayName ?? undefined,
+      );
+      setAccessToken(backendRes.data.accessToken);
+      toast.success("Welcome back!");
+    } catch (error) {
+      toast.error(getFirebaseErrorMessage(error));
+    }
   };
 
   return (
@@ -39,6 +68,7 @@ export default function LoginPage() {
         variant="outline"
         type="button"
         className="w-full mb-4 cursor-pointer"
+        onClick={handleGoogleLogin}
       >
         <GoogleIcon />
         Continue with Google
