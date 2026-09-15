@@ -11,6 +11,9 @@ const envSchema = z.object({
   MONGO_URI: z.string(),
   JWT_ACCESS_SECRET: z.string(),
   JWT_REFRESH_SECRET: z.string(),
+  FIREBASE_PROJECT_ID: z.string(),
+  FIREBASE_PRIVATE_KEY: z.string(),
+  FIREBASE_CLIENT_EMAIL: z.string(),
 });
 
 const parsedEnv = envSchema.parse(process.env);
