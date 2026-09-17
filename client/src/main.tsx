@@ -7,9 +7,14 @@ import { router } from "@/routes/router.tsx";
 
 import { Toaster } from "@/components/ui/sonner";
 
+import { store } from "@/app/store";
+import { Provider } from "react-redux";
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <RouterProvider router={router} />
-    <Toaster richColors position="top-center" />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+      <Toaster richColors position="top-center" />
+    </Provider>
   </StrictMode>,
 );

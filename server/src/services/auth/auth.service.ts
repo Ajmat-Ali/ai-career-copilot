@@ -25,6 +25,8 @@ export async function verifyFirebaseTokenAndUpsertUser(
     { firebaseUid: decoded.uid },
     updateData,
     { upsert: true, returnDocument: "after" },
+  ).select(
+    "-__v -attemptsLimit -attemptsUsed -createdAt -firebaseUid -updatedAt",
   );
 
   const accessToken = generateAccessToken({

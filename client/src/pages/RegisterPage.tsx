@@ -11,7 +11,9 @@ import { loginWithGoogle, registerWithEmail } from "@/api/firebaseAuth";
 import { sendIdTokenToBackend } from "@/api/auth.api";
 import { getFirebaseErrorMessage } from "@/lib/firebaseErrors";
 import { toast } from "sonner";
-import { setAccessToken } from "@/api/tokenStore";
+import { useAppDispatch } from "@/app/hooks";
+import { setCredentials } from "@/features/auth/authSlice";
+import { useDispatch } from "react-redux";
 
 const registerSchema = z
   .object({
@@ -36,12 +38,26 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
+  const dispatch = useDispatch();
+
   const onSubmit = async (data: RegisterFormValues) => {
     try {
       const result = await registerWithEmail(data.email, data.password);
       const idToken = await result.user.getIdToken();
       const backendRes = await sendIdTokenToBackend(idToken, data.name);
-      setAccessToken(backendRes.data.accessToken);
+      dispatch(
+        setCredentials({
+          accessToken: backendRes.data.accessToken,
+          user: {
+            id: backendRes.data.user._id,
+            email: backendRes.data.user.email,
+            emailVerified: backendRes.data.user.emailVerified,
+            name: backendRes.data.user.name,
+            role: backendRes.data.user.role,
+          },
+        }),
+      );
+
       toast.success("Account created!");
       // navigate to dashboard next
     } catch (error) {
@@ -57,7 +73,20 @@ export default function RegisterPage() {
         idToken,
         result.user.displayName ?? undefined,
       );
-      setAccessToken(backendRes.data.accessToken);
+
+      dispatch(
+        setCredentials({
+          accessToken: backendRes.data.accessToken,
+          user: {
+            id: backendRes.data.user._id,
+            email: backendRes.data.user.email,
+            emailVerified: backendRes.data.user.emailVerified,
+            name: backendRes.data.user.name,
+            role: backendRes.data.user.role,
+          },
+        }),
+      );
+
       toast.success("Account created!");
     } catch (error) {
       toast.error(getFirebaseErrorMessage(error));

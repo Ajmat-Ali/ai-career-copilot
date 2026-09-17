@@ -11,7 +11,8 @@ import { loginWithEmail, loginWithGoogle } from "@/api/firebaseAuth";
 import { sendIdTokenToBackend } from "@/api/auth.api";
 import { toast } from "sonner";
 import { getFirebaseErrorMessage } from "@/lib/firebaseErrors";
-import { setAccessToken } from "@/api/tokenStore";
+import { useAppDispatch } from "@/app/hooks";
+import { setCredentials } from "@/features/auth/authSlice";
 
 const loginSchema = z.object({
   email: z.string().email("Enter a valid email"),
@@ -29,14 +30,27 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  const dispatch = useAppDispatch();
+
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const result = await loginWithEmail(data.email, data.password);
       const idToken = await result.user.getIdToken();
       const backendRes = await sendIdTokenToBackend(idToken);
-      setAccessToken(backendRes.data.accessToken);
+
+      dispatch(
+        setCredentials({
+          accessToken: backendRes.data.accessToken,
+          user: {
+            id: backendRes.data.user._id,
+            email: backendRes.data.user.email,
+            emailVerified: backendRes.data.user.emailVerified,
+            name: backendRes.data.user.name,
+            role: backendRes.data.user.role,
+          },
+        }),
+      );
       toast.success("Welcome back!");
-      // navigate to dashboard next
     } catch (error) {
       toast.error(getFirebaseErrorMessage(error));
     }
@@ -50,7 +64,20 @@ export default function LoginPage() {
         idToken,
         result.user.displayName ?? undefined,
       );
-      setAccessToken(backendRes.data.accessToken);
+
+      dispatch(
+        setCredentials({
+          accessToken: backendRes.data.accessToken,
+          user: {
+            id: backendRes.data.user._id,
+            email: backendRes.data.user.email,
+            emailVerified: backendRes.data.user.emailVerified,
+            name: backendRes.data.user.name,
+            role: backendRes.data.user.role,
+          },
+        }),
+      );
+
       toast.success("Welcome back!");
     } catch (error) {
       toast.error(getFirebaseErrorMessage(error));
